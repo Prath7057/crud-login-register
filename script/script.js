@@ -1,39 +1,7 @@
 $(document).ready(function () {
-    const userTable = $('#userTable').DataTable({
-        ajax: {
-            url: 'read.php',
-            type: 'GET',
-            dataSrc: 'data',
-        },
-        columns: [
-            {  data: null,
-                render: function (data, type, row, meta) {
-                    return meta.row + 1;
-                },
-            },
-            { data: 'name' },
-            { data: 'gender' },
-            { data: 'mobile' },
-            { data: 'email' },
-            {
-                data: 'image',
-                render: function (data) {
-                    return `<img src="uploads/${data}" class="img-thumbnail" style="width: 50px; height: 50px;">`;
-                },
-            },
-            {
-                data: 'id',
-                render: function (data) {
-                    return `
-                        <button class="btn btn-info btn-sm view-btn" data-id="${data}">View</button>
-                        <button class="btn btn-warning btn-sm update-btn" data-id="${data}">Update</button>
-                        <button class="btn btn-danger btn-sm delete-btn" data-id="${data}">Delete</button>
-                    `;
-                },
-            },
-        ],
-    });
-
+    //
+    $('#userTable').DataTable();
+    //
     // Show the modal for adding a new user
     $('#addUserBtn').on('click', function () {
         $('#userForm')[0].reset(); // Clear the form
@@ -125,7 +93,7 @@ $(document).ready(function () {
                     $('#userId').val(''); 
                     $('#modalTitle').text('Add User');
                     $('#userModal').modal('hide');
-                    userTable.ajax.reload();
+                    datatableReload();
                 } else {
                     alert('Error: ' + res.message);
                 }
@@ -147,7 +115,7 @@ $(document).ready(function () {
                 success: function (response) {
                     const res = JSON.parse(response);
                     if (res.success) {
-                        userTable.ajax.reload();
+                        datatableReload();
                     } else {
                         alert('Error: ' + res.message);
                     }
@@ -156,3 +124,18 @@ $(document).ready(function () {
         }
     });
 });
+function datatableReload() {
+    $.ajax({
+        url: 'read.php',
+        type: 'POST',
+        success: function (response) {
+            const res = response; 
+            if (res) {
+                $('#datatableBody').html('');
+                $('#datatableBody').html(res);
+            } else {
+                alert('Error: No data found.');
+            }
+        },
+    });
+}
